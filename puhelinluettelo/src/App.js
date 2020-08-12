@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import noteService from './services/notes'
 
 const Filter = (props) => (
   <div>
@@ -7,6 +7,7 @@ const Filter = (props) => (
   onChange={props.onChange}/>
   </div>
 )
+
 
 const Person = (props) => (
   <form onSubmit={props.onSubmit}>
@@ -27,10 +28,17 @@ const Person = (props) => (
 const Persons = (props) => {
   const copy = props.persons.filter(person =>
   person.name.toLowerCase().includes(props.filter.toLowerCase()))
+  copy.map(a => console.log(a))
+  copy.map(a => console.log(a.id))
   return (
-    copy.map(a => <p key={a.name}>{a.name} {a.number}</p>)
+    copy.map( person => <List key={person.id} id={person.id}
+             name={person.name} number={person.number} event={props.event}/> )
   )
 }
+
+const List = ({id,name,number,event}) => (
+  <p> {name}  {number} <button onClick={() => event(id) } > Delete     </button></p>
+)
 
 const App = () => {
 
@@ -39,6 +47,15 @@ const App = () => {
   const [ newNumber, setNewNumber ] = useState('')
   const [ newFilter, showFiltered ] = useState('')
 
+  const deleteName = (id) => {
+   
+    if (window.confirm("poistetaanko henkilö")) {
+      noteService.Delete(id).then(response => {
+        setPersons(persons.filter(person => person.id !==id))
+      })
+    }
+  }
+
   const addName = (event) => {
     event.preventDefault()
     const person = {
@@ -46,48 +63,40 @@ const App = () => {
       number: newNumber
     }
     if (persons.map(person => person.name.toLowerCase()).includes(newName.toLowerCase()) === false) {
-      setPersons(persons.concat(person))
-      setNewName('')
-      setNewNumber('')
+      noteService.create(person).then(response => {
+        setPersons(persons.concat(response.data))
+        setNewName('')
+        setNewNumber('')
+
+    }) 
     } 
     else {
       window.alert(`${newName} is already added to phonebook`)
     }
-
   }
 
-  const handleName = (event) => {
-    console.log(event.target.value)
-    setNewName(event.target.value)
-  }
-  const handleNumber = (event) => {
+  useEffect(() => {
+    noteService.getAll().then(response => {
+    setPersons(response.data)
+    })
+  }, [])
+  
+   const handleNumber = (event) => {
     console.log(event.target.value)
     setNewNumber(event.target.value)
   }
-  const handleFilter = (event) => {
-    showFiltered(event.target.value)
-  }
-
-
-  useEffect(() => {
-    console.log('effect')
-    axios.get('http://localhost:3001/persons').then(response => {
-      console.log('promise fulfilled')
-      setPersons(response.data)
-    })
-  }, [])
-  console.log('render',persons.length, 'notes')
-  
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <Filter value={newFilter} onChange={handleFilter}/>
+      <Filter value={newFilter} onChange={(event) => {
+      showFiltered(event.target.value)}}/>
       <h2>add a new</h2>
-      <Person onSubmit={addName} name={newName} onChangeName={handleName}
+      <Person onSubmit={addName} name={newName}
+      onChangeName={(event) => {setNewName(event.target.value)}}
       number={newNumber} onChangeNumber={handleNumber}/>
       <h2>Numbers</h2>
-      <Persons persons={persons} filter={newFilter}/>
+      <Persons persons={persons} filter={newFilter} event={deleteName}/>
     </div>
   )
 }
