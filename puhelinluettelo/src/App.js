@@ -31,14 +31,10 @@ const Persons = (props) => {
   copy.map(a => console.log(a))
   copy.map(a => console.log(a.id))
   return (
-    copy.map( person => <List key={person.id} id={person.id}
-             name={person.name} number={person.number} event={props.event}/> )
+    copy.map( person => <p key={person.id}> {person.name} {person.number} 
+      <button onClick={()=>{props.event(person.id)}}> Delete </button>  </p> )
   )
 }
-
-const List = ({id,name,number,event}) => (
-  <p> {name}  {number} <button onClick={() => event(id) } > Delete     </button></p>
-)
 
 const App = () => {
 
