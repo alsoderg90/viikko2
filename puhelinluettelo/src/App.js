@@ -77,7 +77,6 @@ const App = () => {
           setPersons(persons.map(name => name.id === oldName.id ? response.data : name ))})
         setNewName('')
         setNewNumber('')
-
       }
     }
   }

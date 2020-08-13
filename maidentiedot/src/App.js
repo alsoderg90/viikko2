@@ -52,7 +52,7 @@ const Weather = (props) => {
   
   useEffect(() => {
     const params = {
-      access_key: 'tähän avain',
+      access_key: 'f34e680fd8b388c61a065d0061ec10fc',
       query: props.city
     }  
   axios.get('http://api.weatherstack.com/current', {params})
