@@ -14,10 +14,14 @@ const Delete = (id) => {
    return axios.delete(`${baseUrl}/${id}`)
 }
 
-
+const replace = (id,newOject) => {
+    console.log("id is2",newOject,`${baseUrl}/${id}`)
+   return axios.put(`${baseUrl}/${id}`,newOject)
+}
 
 export default {
     getAll : getAll,
     create : create,
-    Delete: Delete
+    Delete: Delete,
+    replace : replace
 }

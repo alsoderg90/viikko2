@@ -28,13 +28,15 @@ const Person = (props) => (
 const Persons = (props) => {
   const copy = props.persons.filter(person =>
   person.name.toLowerCase().includes(props.filter.toLowerCase()))
-  copy.map(a => console.log(a))
-  copy.map(a => console.log(a.id))
   return (
-    copy.map( person => <p key={person.id}> {person.name} {person.number} 
-      <button onClick={()=>{props.event(person.id)}}> Delete </button>  </p> )
+    copy.map( person => <List key={person.id} id={person.id}
+             name={person.name} number={person.number} event={props.event}/> )
   )
 }
+
+const List = ({id,name,number,event}) => (
+  <p> {name}  {number} <button onClick={() => event(id) } > Delete     </button></p>
+)
 
 const App = () => {
 
@@ -67,7 +69,16 @@ const App = () => {
     }) 
     } 
     else {
-      window.alert(`${newName} is already added to phonebook`)
+      if (window.confirm(`${newName} is already added to phonebook`)) {
+        const oldName = persons.find(name => name.name.toLowerCase() === person.name.toLowerCase())
+        console.log(oldName,"id ompi:",oldName.id)
+        noteService.replace(oldName.id,person)
+        .then(response => {
+          setPersons(persons.map(name => name.id === oldName.id ? response.data : name ))})
+        setNewName('')
+        setNewNumber('')
+
+      }
     }
   }
 
@@ -78,7 +89,6 @@ const App = () => {
   }, [])
   
    const handleNumber = (event) => {
-    console.log(event.target.value)
     setNewNumber(event.target.value)
   }
 
@@ -98,4 +108,3 @@ const App = () => {
 }
 
 export default App
-
