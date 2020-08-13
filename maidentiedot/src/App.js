@@ -1,45 +1,45 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios'
 
-const Etsi = (props) => (
+const Find = (props) => (
   <div>
   find countries: <input value={props.value} 
   onChange={props.onChange}/>
   </div>
 )
 
-const Maat = (props) => {
-  const hakutulokset = props.maat.filter(maa => maa.name.toUpperCase().includes(props.value.toString().toUpperCase()))
+const Countries = (props) => {
+  const results = props.countries.filter(countries => countries.name.toUpperCase().includes(props.value.toString().toUpperCase()))
 
-  if (hakutulokset.length === 1) return (
-  <Maa maa={hakutulokset[0]} saa={props.saa}/>
+  if (results.length === 1) return (
+  <Country country={results[0]}/>
   )
   
-  if (hakutulokset.length > 1 && hakutulokset.length <10) 
+  if (results.length > 1 && results.length <10) 
   return (
-    hakutulokset.map(maa => <p key={maa.name}>{maa.name}
-    <button onClick={() => props.hakusana(maa.name)}>show</button></p>)
+    results.map(country => <p key={country.name}>{country.name}
+    <button onClick={() => props.search(country.name)}>show</button></p>)
   )
   else return <p>Too many matches, specify another filter</p>
 }
 
-const Maa = ({maa}) => {
+const Country = ({country}) => {
   
  return ( 
   <div>
-    <h1>{maa.name}</h1>
-    <p>Capital: {maa.capital}</p>
-    <p>Population: {maa.population}</p>
+    <h1>{country.name}</h1>
+    <p>Capital: {country.capital}</p>
+    <p>Population: {country.population}</p>
     <h2>Languages</h2>
     <ul>
- {maa.languages.map(kielet => <li key={kielet.name}>{kielet.name}</li>)}
+ {country.languages.map(languages => <li key={languages.name}>{languages.name}</li>)}
 </ul> 
       <a href="lippu" >
-        <img alt="lippu" src={maa.flag}
+        <img alt="lippu" src={country.flag}
         width="350" height="210">     
         </img>  
       </a>
-    <Weather city={maa.capital}/>
+    <Weather city={country.capital}/>
   </div>
  )
 }
@@ -52,14 +52,14 @@ const Weather = (props) => {
   
   useEffect(() => {
     const params = {
-      access_key: 'TÄHÄN AVAIN',
+      access_key: 'tähän avain',
       query: props.city
     }  
   axios.get('http://api.weatherstack.com/current', {params})
   .then(response => {
     showWeather(response.data)
   })
-  },[])
+  },[props.city])
   console.log("Weather is", weather)
 
   if (weather)   
@@ -80,24 +80,24 @@ const Weather = (props) => {
 
 
 const App = ()  => {
-  const [ hakuehto, haeMaat ] = useState([])
-  const [ maat, naytaMaat] = useState([])
+  const [ search, findCountries ] = useState([])
+  const [ countries, showCountries] = useState([])
 
    useEffect(() => {
     axios.get('http://restcountries.eu/rest/v2/all').then(response => {
-      naytaMaat(response.data)
+      showCountries(response.data)
     })
   }, [])
 
   const handleSearch = (event) => {
-    haeMaat(event.target.value)
+    findCountries(event.target.value)
     console.log(event.target.value)
   }
 
   return (
     <div>
-    <Etsi value={hakuehto} onChange={handleSearch}/>
-    <Maat value={hakuehto} maat={maat} hakusana={haeMaat}/>
+    <Find value={search} onChange={handleSearch}/>
+    <Countries value={search} countries={countries} search={findCountries}/>
     </div>
   )
 }
