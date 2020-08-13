@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import noteService from './services/notes'
+import './index.css'
+
+const Notification = (props) => {
+if (props.message === null){
+  return null
+}
+console.log(props.message,`${props.styleClass}`)
+return (
+  <div className={props.className}> 
+  {props.message}
+  </div>
+)
+}
 
 const Filter = (props) => (
   <div>
@@ -44,13 +57,19 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ newFilter, showFiltered ] = useState('')
+  const [ notificationMessage, setNotificationMessage] = useState(null)
+  const [ errorMessage, setErrorMessage] = useState(null)
 
   const deleteName = (id) => {
-   
+    const person = persons.find(person => person.id === id)
     if (window.confirm("poistetaanko henkilö")) {
       noteService.Delete(id).then(response => {
         setPersons(persons.filter(person => person.id !==id))
       })
+      setNotificationMessage(`Contact ${person.name} deleted`)
+      setTimeout(() => {          
+        setNotificationMessage(null)        
+        }, 1500)
     }
   }
 
@@ -65,20 +84,36 @@ const App = () => {
         setPersons(persons.concat(response.data))
         setNewName('')
         setNewNumber('')
+        setNotificationMessage(`Added ${person.name}`)
+        setTimeout(() => {          
+          setNotificationMessage(null)        
+          }, 1500)
 
     }) 
     } 
     else {
-      if (window.confirm(`${newName} is already added to phonebook`)) {
+      if (window.confirm(`${newName} is already added to phonebook, replace with a new one?`)) {
         const oldName = persons.find(name => name.name.toLowerCase() === person.name.toLowerCase())
         console.log(oldName,"id ompi:",oldName.id)
         noteService.replace(oldName.id,person)
         .then(response => {
           setPersons(persons.map(name => name.id === oldName.id ? response.data : name ))})
+        .catch(error => {
+            setErrorMessage(      
+              `Information of '${person.name}' was already deleted from server`)      
+              setPersons(persons.filter(n => n.id !== oldName.id))
+              setTimeout(() => {          
+                setErrorMessage(null)        
+                }, 4000)    })
         setNewName('')
         setNewNumber('')
+        setNotificationMessage(`Replaced ${person.name}`)
+        setTimeout(() => {          
+          setNotificationMessage(" a")        
+          }, 2500)
       }
-    }
+    } 
+    
   }
 
   useEffect(() => {
@@ -94,6 +129,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMessage} className="notification" />
+      <Notification message={errorMessage} className="error" />
       <Filter value={newFilter} onChange={(event) => {
       showFiltered(event.target.value)}}/>
       <h2>add a new</h2>
