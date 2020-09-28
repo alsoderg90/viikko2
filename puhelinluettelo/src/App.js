@@ -97,23 +97,24 @@ const App = () => {
         console.log(oldName,"id ompi:",oldName.id)
         noteService.replace(oldName.id,person)
         .then(response => {
-          setPersons(persons.map(name => name.id === oldName.id ? response.data : name ))})
-        .catch(error => {
+          setPersons(persons.map(name => name.id === oldName.id ? response.data : name ))
+          setNewName('')
+          setNewNumber('')
+          setNotificationMessage(`Replaced ${person.name}`)
+          setTimeout(() => {          
+            setNotificationMessage(null)        
+            }, 2500)
+          })
+          .catch(error => {
+            setPersons(persons.filter(n => n.id !== oldName.id))
             setErrorMessage(      
               `Information of '${person.name}' was already deleted from server`)      
-              setPersons(persons.filter(n => n.id !== oldName.id))
               setTimeout(() => {          
                 setErrorMessage(null)        
-                }, 4000)    })
-        setNewName('')
-        setNewNumber('')
-        setNotificationMessage(`Replaced ${person.name}`)
-        setTimeout(() => {          
-          setNotificationMessage(" a")        
-          }, 2500)
-      }
-    } 
-    
+                }, 4000)    
+              })
+            }} 
+                     
   }
 
   useEffect(() => {

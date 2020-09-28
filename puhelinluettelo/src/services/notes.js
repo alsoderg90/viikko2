@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3001/persons' /// 'http://localhost:3001/api/persons' <- vaihdettu tuosta
+const baseUrl = 'http://localhost:3001/persons' /// '(/api/persons)' <- vaihdettu tuosta (TODO: proxy )
 
 const getAll = () => {
     return axios.get(baseUrl)
